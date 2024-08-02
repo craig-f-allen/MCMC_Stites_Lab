@@ -1,0 +1,10 @@
+id,test_run
+n,100
+burn_in,0.2
+prior_std,0.1
+prior_plateau,1
+q_std,0.1
+likelihood_func,STRICT
+analyze_data,1
+spider_plots,0
+prior_override,0
