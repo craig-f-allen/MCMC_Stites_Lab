@@ -1,5 +1,5 @@
 id,test_run
-n,100
+n,100000
 burn_in,0.2
 prior_std,0.1
 prior_plateau,1

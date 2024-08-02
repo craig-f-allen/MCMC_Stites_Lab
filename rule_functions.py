@@ -1,8 +1,8 @@
 from ODE_tools import *
 from RAS_ODE_models_MCMC import *
 
-def get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult):
-    get_param_opts = {'mutant':WT_new,'GTot':4e-7,'EffTot':4e-7,'GAP':(6e-11)*GAP_mult,'GTP':180e-6,'GDP':18e-6,'GEF':(2e-10)*GEF_mult,'fract_mut':1}
+def get_param_ivs(WT_new,o,params,GEF_mult,GAP_mult):
+    param_ivs = {'mutant':WT_new,'GTot':4e-7,'EffTot':4e-7,'GAP':(6e-11)*GAP_mult,'GTP':180e-6,'GDP':18e-6,'GEF':(2e-10)*GEF_mult,'fract_mut':1}
     for param in params:
         mult = 1
         if param.type == 'iv':
@@ -10,8 +10,8 @@ def get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult):
                 mult = GEF_mult
             if param.id == "GAP":
                 mult = GAP_mult
-            get_param_opts[param.id] = o[param.id]*mult 
-    return get_param_opts
+            param_ivs[param.id] = o[param.id]*mult 
+    return param_ivs
 
 # initial rule gate
 def rule_initial_pass(o,params):
@@ -23,8 +23,8 @@ def rule_initial_pass(o,params):
 
     GEF_mult = 1
     GAP_mult = 1
-    get_param_opts = get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,GEF_mult,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     res = sim.integrate_model_to_ss()
 
     per_RAS_GTP_Tot = res["per_RAS_GTP_Tot"]*100
@@ -43,8 +43,8 @@ def rule_initial_pass(o,params):
     
     GEF_mult = 10
     GAP_mult = 1
-    get_param_opts = get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,GEF_mult,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     res_10xGEF = sim.integrate_model_to_ss()
     
     per_RAS_GTP_Tot_10xGEF = res_10xGEF["per_RAS_GTP_Tot"]*100
@@ -74,26 +74,26 @@ def rule_hypersens(o,params,bounds,out_option='per_RAS_GTP_Eff'):
 
     GEF_mult = 2
     GAP_mult = 1
-    get_param_opts = get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,GEF_mult,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     GEF_stim_basal_GAP = sim.integrate_model_to_ss()[out_option]
 
     GEF_mult = 1
     GAP_mult = 1
-    get_param_opts = get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,GEF_mult,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     basal_GEF_basal_GAP = sim.integrate_model_to_ss()[out_option]
 
     GEF_mult = 2
     GAP_mult = 0.5
-    get_param_opts = get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,GEF_mult,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     GEF_stim_reduced_GAP = sim.integrate_model_to_ss()[out_option]
 
     GEF_mult = 1
     GAP_mult = 0.5
-    get_param_opts = get_get_param_opts(WT_new,o,params,GEF_mult,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,GEF_mult,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     basal_GEF_reduced_GAP = sim.integrate_model_to_ss()[out_option]
 
     GEF_stim_delta = GEF_stim_basal_GAP-basal_GEF_basal_GAP
@@ -114,13 +114,13 @@ def rule_half_NF1_KO(o,params,bounds,out_option='per_RAS_GTP_Eff'):
             setattr(WT_new,param.id,o[param.id])
 
     GAP_mult = 1
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     basal_GAP = sim.integrate_model_to_ss()[out_option]
 
     GAP_mult = 0.75
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     red_GAP = sim.integrate_model_to_ss()[out_option]
 
     try:
@@ -141,13 +141,13 @@ def rule_full_NF1_KO(o,params,bounds,out_option='per_RAS_GTP_Eff'):
             setattr(WT_new,param.id,o[param.id])
 
     GAP_mult = 0.75
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     basal_GAP = sim.integrate_model_to_ss()[out_option]
 
     GAP_mult = 0.5
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,GAP_mult)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,GAP_mult)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     red_GAP = sim.integrate_model_to_ss()[out_option]
 
     flag,half_NF1_KO_val = rule_half_NF1_KO(o,params,bounds,out_option=out_option)
@@ -178,8 +178,8 @@ def rule_GAP_insens(o,params,bounds,out_option='per_RAS_GTP_Tot'):
     setattr(WT_new,'kint',kint*0.2)
     setattr(WT_new,'kcat',kint*0.2)
 
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,1)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,1)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     GAP_insens_val = sim.integrate_model_to_ss()[out_option]*100 # convert to percent
 
     if GAP_insens_val > bounds[0]: # 50:
@@ -193,16 +193,16 @@ def rule_GTPase_decrease(o,params,bounds,out_option='per_RAS_GTP_Tot'):
         if param.type == 'kinetic':
             setattr(WT_new,param.id,o[param.id])
 
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,1)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,1)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     basal_val = sim.integrate_model_to_ss()[out_option]*100
 
     mult = 0.1 # decreases kint
     kint = copy.deepcopy(WT_new.kint)
     setattr(WT_new,'kint',kint*mult)
 
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,1)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,1)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     GTPase_dec_val = sim.integrate_model_to_ss()[out_option]*100 # convert to percentage
 
     try:
@@ -224,8 +224,8 @@ def rule_GTPase_dec_comb(o,params,bounds,out_option='per_RAS_GTP_Tot'):
     kint = copy.deepcopy(WT_new.kint)
     setattr(WT_new,'kcat',kint)
 
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,1)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,1)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     basal_kint = sim.integrate_model_to_ss()[out_option]*100
 
     mult = 0.1 # decreases kint
@@ -233,8 +233,8 @@ def rule_GTPase_dec_comb(o,params,bounds,out_option='per_RAS_GTP_Tot'):
     setattr(WT_new,'kint',kint*mult)
     setattr(WT_new,'kcat',kint*mult)
 
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,1)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,1)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     dec_kint = sim.integrate_model_to_ss()[out_option]*100
 
     delta = dec_kint - basal_kint
@@ -251,8 +251,8 @@ def rule_fast_cycling(o,params,bounds,out_option='per_RAS_GTP_Tot'):
         if param.type == 'kinetic':
             setattr(WT_new,param.id,o[param.id])
 
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,1)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,1)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     basal = sim.integrate_model_to_ss()[out_option]*100
 
     # make fast cycling
@@ -261,8 +261,8 @@ def rule_fast_cycling(o,params,bounds,out_option='per_RAS_GTP_Tot'):
     setattr(WT_new,'kdissD',kdissD*25)
     setattr(WT_new,'kdissT',kdissT*25)
 
-    get_param_opts = get_get_param_opts(WT_new,o,params,1,1)
-    sim = ODE_Simulation(RAS_model,get_params_RAS,get_param_opts)
+    param_ivs = get_param_ivs(WT_new,o,params,1,1)
+    sim = ODE_Simulation(RAS_model,get_params_RAS,param_ivs)
     fast_cycling = sim.integrate_model_to_ss()[out_option]*100
 
     delta = fast_cycling - basal
