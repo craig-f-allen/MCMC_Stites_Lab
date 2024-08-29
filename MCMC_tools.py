@@ -279,7 +279,7 @@ class MCMC:
         df = pd.DataFrame.from_dict(S_all)
         df.to_csv('runs/{}/data/S_all_{}.csv'.format(id,id),',')
 
-        df = pd.DataFrame.from_dict(self.P)
+        df = pd.DataFrame.from_dict(self.P) #type: ignore
         df.to_csv('runs/{}/data/P_{}.csv'.format(id,id),',')
 
         rules_passed_all = np.array(rules_passed_all)
@@ -294,6 +294,50 @@ class MCMC:
         #print('\nSaved data at {} iterations.\n'.format(n))
 
         return True
+    
+    def load_data(self,id):
+
+        S = pd.read_csv('data/{}/data/S_{}.csv'.format(id,id))
+        S_all = pd.read_csv('data/{}/data/S_all_{}.csv'.format(id,id))
+        burn_in = 0.20
+        burn_in_len = round(burn_in*len(S[self.params[0].id]))
+        S_burned = {}
+        for param in self.params:
+            S_burned[param.id] = S[param.id][burn_in_len:]
+
+        P = pd.read_csv('data/{}/data/P_{}.csv'.format(id,id))
+
+        rules_passed_all = np.genfromtxt('data/{}/data/rules_passed_all_{}.csv'.format(id,id), delimiter=',')
+        rules_passed_accepted = np.genfromtxt('data/{}/data/rules_passed_accepted_{}.csv'.format(id,id), delimiter=',')
+
+        n_rules = len(rule_functions)
+
+        rules = []
+        rules = np.array(rules_passed_accepted.reshape((int(len(rules_passed_accepted)/n_rules),n_rules)))
+
+        rules_all = []
+        rules_all = np.array(rules_passed_all.reshape((int(len(rules_passed_all)/n_rules),n_rules)))
+
+        vals_accepted = np.genfromtxt('data/{}/data/vals_accepted_{}.csv'.format(id,id),delimiter=',')
+        vals_accepted = vals_accepted.reshape((int(len(vals_accepted)/n_rules),n_rules))
+        vals = {}
+        rule_inds = []
+        for i,rule in enumerate(rule_functions):
+            rule_inds.append(rule.__name__)
+            vals[rule.__name__] = vals_accepted[:,i]
+
+        self.S = S
+        self.P = P
+        self.S_burned = S_burned
+        self.S_all = S_all
+        self.rules_passed_all = rules_passed_all
+        self.rules_passed_accepted = rules_passed_accepted
+        self.vals_accepted = vals_accepted
+
+        print("data loaded successfully.")
+        acceptance_ratio = round(len(S_burned[self.params[0].id])/len(S_all[self.params[0].id])*100,2)
+
+        print(f"acceptance ratio: {acceptance_ratio}%")
     
     def spider_plots(self, o_0, include_region=True, y_log_scale = True, path=None):
     
@@ -446,7 +490,7 @@ def pairplot(data,params:list[Parameter],logscale=True,ignore_upper_tri=True,reg
                 xmin, xmax = axs[i][j].get_xlim()
                 #plt.ylim([0,4])
 
-                if P != 0:
+                if type(P) != int:
                     if not p_plateau:
                         print("error - please provide p_plateau, set at 1")
                         p_plateau = 1
